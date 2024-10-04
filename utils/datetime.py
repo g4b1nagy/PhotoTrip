@@ -22,5 +22,13 @@ def parse_datetime(string):
             return dt
         except ValueError:
             pass
-    logger.error(f"Could not parse datetime string: {string}")
+    logger.error(f"Could not parse datetime: {string}")
+    return None
+
+
+def timestamp_to_datetime(timestamp):
+    try:
+        return datetime.datetime.fromtimestamp(timestamp).astimezone()
+    except ValueError:
+        logger.error(f"Could not parse timestamp: {timestamp}")
     return None
