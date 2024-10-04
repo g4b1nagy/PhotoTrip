@@ -17,6 +17,14 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
+from django.utils.translation import gettext as _
+
+
+admin.site.enable_nav_sidebar = False
+admin.site.index_title = _("Site administration")
+admin.site.site_header = _("PhotoTrip")
+admin.site.site_title = _("PhotoTrip")
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
