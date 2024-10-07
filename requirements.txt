@@ -1,4 +1,8 @@
 asgiref==3.8.1
 Django==5.1.1
+psycopg==3.2.3
+psycopg-binary==3.2.3
+psycopg-pool==3.2.3
 ruff==0.6.9
 sqlparse==0.5.1
+typing_extensions==4.12.2
