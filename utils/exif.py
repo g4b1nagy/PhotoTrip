@@ -13,7 +13,7 @@ class ExifException(Exception):
 
 def get_metadata(file_path=None, file_contents=None, timeout=TIMEOUT):
     if file_path is None and file_contents is None:
-        raise ExifException("Either file_path or file_contents must be provided.")
+        raise ExifException("Either file_path or file_contents must be provided")
     if file_path is None:
         file_path = "-"
     try:
@@ -56,43 +56,40 @@ def get_metadata(file_path=None, file_contents=None, timeout=TIMEOUT):
 
 
 def get_file_type(metadata):
-    return metadata["File"]["FileTypeExtension"]["val"].strip()
+    return metadata["File"]["FileTypeExtension"]["val"]
 
 
 def get_mime_type(metadata):
-    return metadata["File"]["MIMEType"]["val"].strip()
+    return metadata["File"]["MIMEType"]["val"]
 
 
 def get_image_width_image_height(metadata):
     try:
-        image_size = metadata["Composite"]["ImageSize"]["num"]
-        # ImageSize may contain float values e.g. in svg files.
-        if "." not in image_size:
-            return [int(x) for x in image_size.split(" ")]
+        # Note that image_size may contain float values e.g. in some .svg files
+        image_size = metadata["Composite"]["ImageSize"]["val"]
+        image_size = [int(x) for x in image_size.split("x")]
+        return tuple(image_size)
     except KeyError:
         return None, None
 
 
 def get_megapixels(metadata):
     try:
-        return float(metadata["Composite"]["Megapixels"]["num"])
+        return metadata["Composite"]["Megapixels"]["num"]
     except KeyError:
         return None
 
 
 def get_taken_on(metadata):
+    keys = ["SubSecDateTimeOriginal", "DateTimeOriginal"]
     values = []
-    try:
-        # SubSecDateTimeOriginal should offer the best precision. It may or may not
-        # contain time zone information.
-        values.append(metadata["Composite"]["SubSecDateTimeOriginal"]["val"])
-    except KeyError:
-        pass
-    try:
-        # DateTimeOriginal does not contain time zone information.
-        values.append(metadata["EXIF"]["DateTimeOriginal"]["val"])
-    except KeyError:
-        pass
+    for key in keys:
+        try:
+            value = metadata["Composite"][key]["val"]
+            if value is not None:
+                values.append(value)
+        except KeyError:
+            pass
     for value in values:
         taken_on = parse_datetime(value)
         if taken_on is not None:
@@ -102,46 +99,42 @@ def get_taken_on(metadata):
 
 def get_gps_latitude_gps_longitude(metadata):
     try:
-        gps_position = metadata["Composite"]["GPSPosition"]["num"]
-        return [float(x) for x in gps_position.split(" ")]
+        gps_latitude = metadata["Composite"]["GPSLatitude"]["num"]
+        gps_longitude = metadata["Composite"]["GPSLongitude"]["num"]
+        return gps_latitude, gps_longitude
     except KeyError:
         return None, None
 
 
 def get_gps_altitude(metadata):
     try:
-        return float(metadata["Composite"]["GPSAltitude"]["num"])
+        # Value will be:
+        #  < 0 for "Below Sea Level" and
+        # >= 0 for "Above Sea Level"
+        return metadata["Composite"]["GPSAltitude"]["num"]
     except KeyError:
         return None
 
 
-def get_camera_make_model_serial_number(metadata):
+def get_camera_make_camera_model(metadata):
     try:
-        make = str(metadata["EXIF"]["Make"]["val"]).strip()
+        camera_make = metadata["EXIF"]["Make"]["val"]
     except KeyError:
-        make = ""
+        camera_make = None
     try:
-        model = str(metadata["EXIF"]["Model"]["val"]).strip()
+        camera_model = metadata["EXIF"]["Model"]["val"]
     except KeyError:
-        model = ""
-    try:
-        serial_number = str(metadata["EXIF"]["SerialNumber"]["val"]).strip()
-    except KeyError:
-        serial_number = ""
-    return make, model, serial_number
+        camera_model = None
+    return camera_make, camera_model
 
 
-def get_lens_make_name_serial_number(metadata):
+def get_lens_make_lens_model(metadata):
     try:
-        make = str(metadata["EXIF"]["LensMake"]["val"]).strip()
+        lens_make = metadata["EXIF"]["LensMake"]["val"]
     except KeyError:
-        make = ""
+        lens_make = None
     try:
-        name = str(metadata["Composite"]["LensID"]["val"]).strip()
+        lens_model = metadata["EXIF"]["LensModel"]["val"]
     except KeyError:
-        name = ""
-    try:
-        serial_number = str(metadata["EXIF"]["LensSerialNumber"]["val"]).strip()
-    except KeyError:
-        serial_number = ""
-    return make, name, serial_number
+        lens_model = None
+    return lens_make, lens_model
