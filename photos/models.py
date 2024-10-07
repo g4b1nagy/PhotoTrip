@@ -1,6 +1,8 @@
 from utils.models import BaseModel
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.dispatch import receiver
+from django.db.models.signals import pre_save
 
 
 class Photo(BaseModel):
@@ -39,6 +41,14 @@ class Photo(BaseModel):
 
     def __str__(self):
         return self.file_name
+
+
+@receiver(pre_save, sender=Photo)
+def photo_pre_save(sender, instance, *args, **kwargs):
+    if instance.mime_type.name.startswith("image/"):
+        instance.is_image = True
+    elif instance.mime_type.name.startswith("video/"):
+        instance.is_video = True
 
 
 class FileType(BaseModel):
@@ -103,3 +113,11 @@ class Lens(BaseModel):
 
     def __str__(self):
         return f"{self.make} {self.model}".strip()
+
+
+@receiver(pre_save, sender=Lens)
+def lens_pre_save(sender, instance, *args, **kwargs):
+    if " back " in instance.model:
+        instance.position = Lens.Position.BACK
+    elif " front " in instance.model:
+        instance.position = Lens.Position.FRONT
