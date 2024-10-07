@@ -23,7 +23,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "path",
             type=str,
-            help="Path to directory containing photos or single photo file",
+            help="Path to directory containing photos",
         )
 
     def handle(self, *args, **options):
@@ -42,7 +42,11 @@ class Command(BaseCommand):
 
         for file_path in file_paths:
             logger.info(f"Processing: {file_path}")
-            metadata = exif.get_metadata(file_path=file_path)
+            try:
+                metadata = exif.get_metadata(file_path=file_path)
+            except exif.ExifException:
+                logger.exception(f"Could not retrieve file metadata: {file_path}")
+                continue
             file_type = exif.get_file_type(metadata)
             file_type, created = FileType.objects.update_or_create(
                 name=file_type,
@@ -51,27 +55,27 @@ class Command(BaseCommand):
             mime_type, created = MimeType.objects.update_or_create(
                 name=mime_type,
             )
-            camera_make, camera_model, camera_serial_number = (
-                exif.get_camera_make_model_serial_number(metadata)
-            )
-            camera, created = Camera.objects.update_or_create(
-                make=camera_make,
-                model=camera_model,
-                serial_number=camera_serial_number,
-            )
-            lens_make, lens_name, lens_serial_number = (
-                exif.get_lens_make_name_serial_number(metadata)
-            )
-            lens, created = Lens.objects.update_or_create(
-                make=lens_make,
-                name=lens_name,
-                serial_number=lens_serial_number,
-            )
             image_width, image_height = exif.get_image_width_image_height(metadata)
             megapixels = exif.get_megapixels(metadata)
             taken_on = exif.get_taken_on(metadata)
             gps_latitude, gps_longitude = exif.get_gps_latitude_gps_longitude(metadata)
             gps_altitude = exif.get_gps_altitude(metadata)
+            camera_make, camera_model = exif.get_camera_make_camera_model(metadata)
+            if camera_make is not None or camera_model is not None:
+                camera, created = Camera.objects.update_or_create(
+                    make=camera_make or "",
+                    model=camera_model or "",
+                )
+            else:
+                camera = None
+            lens_make, lens_model = exif.get_lens_make_lens_model(metadata)
+            if lens_make is not None or lens_model is not None:
+                lens, created = Lens.objects.update_or_create(
+                    make=lens_make or "",
+                    model=lens_model or "",
+                )
+            else:
+                lens = None
             stat = os.stat(file_path)
             photo, created = Photo.objects.update_or_create(
                 file_name=file_path.name,
