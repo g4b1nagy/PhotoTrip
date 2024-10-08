@@ -5,6 +5,65 @@ from utils.datetime import parse_datetime
 
 
 TIMEOUT = 5
+
+# The values of the composite tags are derived from the values of other tags.
+# These are convenience tags which are calculated after all other information is extracted.
+# See:
+# https://exiftool.org/TagNames/Composite.html
+# https://exiv2.org/tags.html
+
+#            Tag           |       Derived from
+# -------------------------+--------------------------
+#  SubSecDateTimeOriginal  | EXIF:DateTimeOriginal
+#                          | SubSecTimeOriginal
+#                          | OffsetTimeOriginal
+# -------------------------+--------------------------
+#  DateTimeOriginal        | DateTimeCreated
+#                          | DateCreated
+#                          | TimeCreated
+# -------------------------+--------------------------
+#  DateTimeOriginal        | ID3:RecordingTime
+#                          | ID3:Year
+#                          | ID3:Date
+#                          | ID3:Time
+# -------------------------+--------------------------
+#  GPSDateTime             | GPS:GPSDateStamp
+#                          | GPS:GPSTimeStamp
+# -------------------------+--------------------------
+#  GPSDateTime             | Parrot:GPSLatitude
+#                          | Main:CreateDate
+#                          | SampleTime
+# -------------------------+--------------------------
+#  GPSDateTime             | Sony:GPSDateStamp
+#                          | Sony:GPSTimeStamp
+# -------------------------+--------------------------
+#  SubSecCreateDate        | EXIF:CreateDate
+#                          | SubSecTimeDigitized
+#                          | OffsetTimeDigitized
+# -------------------------+--------------------------
+#  DateTimeCreated         | IPTC:DateCreated
+#                          | IPTC:TimeCreated
+# -------------------------+--------------------------
+#  DigitalCreationDateTime | IPTC:DigitalCreationDate
+#                          | IPTC:DigitalCreationTime
+# -------------------------+--------------------------
+#  DateCreated             | Kodak:YearCreated
+#                          | Kodak:MonthDayCreated
+# -------------------------+--------------------------
+#  SubSecModifyDate        | EXIF:ModifyDate
+#                          | SubSecTime
+#                          | OffsetTime
+
+# * EXIF:DateTimeOriginal (date/time when original image was taken)
+# The date and time when the original image data was generated.
+# For a digital still camera the date and time the picture was taken are recorded.
+
+# * EXIF:CreateDate (called DateTimeDigitized by the EXIF spec.)
+# The date and time when the image was stored as digital data.
+
+# * EXIF:ModifyDate (called DateTime by the EXIF spec.)
+# The date and time of image creation. In Exif standard, it is the date and time the file was changed.
+
 TAKEN_ON_TAGS = [
     "SubSecDateTimeOriginal",
     "DateTimeOriginal",
