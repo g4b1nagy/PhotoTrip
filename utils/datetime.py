@@ -3,40 +3,33 @@ import datetime
 from utils.logging import get_logger
 
 
-# DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S,%f %Z"
-DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S %z"
-
-
 logger = get_logger(__name__)
 
 
-def parse_datetime(string):
-    formats = [
-        "%Y:%m:%d %H:%M:%S.%f%z",
-        "%Y:%m:%d %H:%M:%S.%f",
-        "%Y:%m:%d %H:%M:%S%z",
-        "%Y:%m:%d %H:%M:%S",
-        "%Y:%m:%d",
-    ]
-    for format in formats:
+DATETIME_FORMATS = [
+    "%Y:%m:%d %H:%M:%S.%f%z",
+    "%Y:%m:%d %H:%M:%S.%f",
+    "%Y:%m:%d %H:%M:%S%z",
+    "%Y:%m:%d %H:%M:%S",
+]
+
+
+def parse_datetime(dt_string):
+    for format in DATETIME_FORMATS:
         try:
-            dt = datetime.datetime.strptime(string, format)
+            dt = datetime.datetime.strptime(dt_string, format)
             if dt.tzinfo is None:
-                dt = dt.astimezone()
+                dt = dt.replace(tzinfo=datetime.UTC)
             return dt
         except ValueError:
             pass
-    logger.error(f"Could not parse datetime: {string}")
+    logger.error(f"Could not parse datetime string: {dt_string}")
     return None
 
 
 def timestamp_to_datetime(timestamp):
     try:
-        return datetime.datetime.fromtimestamp(timestamp).astimezone()
+        return datetime.datetime.fromtimestamp(timestamp).replace(tzinfo=datetime.UTC)
     except ValueError:
-        logger.error(f"Could not parse timestamp: {timestamp}")
-    return None
-
-
-def format_datetime(dt):
-    return dt.strftime(DATETIME_FORMAT)
+        logger.error(f"Could not convert timestamp to datetime: {timestamp}")
+        return None
