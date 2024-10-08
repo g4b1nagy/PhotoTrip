@@ -48,10 +48,15 @@ class Command(BaseCommand):
                 logger.exception(f"Could not retrieve file metadata: {file_path}")
                 continue
             file_type = exif.get_file_type(metadata)
+            mime_type = exif.get_mime_type(metadata)
+            if not (mime_type.startswith("image/") or mime_type.startswith("video/")):
+                logger.info(
+                    f"File is neither an image nor a video, skipping: {file_path}"
+                )
+                continue
             file_type, created = FileType.objects.update_or_create(
                 name=file_type,
             )
-            mime_type = exif.get_mime_type(metadata)
             mime_type, created = MimeType.objects.update_or_create(
                 name=mime_type,
             )
