@@ -1,23 +1,25 @@
-from django.contrib import admin
+import json
 
+from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
-import json
 
+from utils.admin import BaseModelAdmin, ReadOnlyModelAdmin
+from utils.datetime import format_datetime
 from utils.formatting import bytes_to_human_readable
-from utils.admin import BaseModelAdmin
 from .models import Photo, FileType, MimeType, Camera, Lens
 
 
 @admin.register(Photo)
-class PhotoAdmin(BaseModelAdmin):
+class PhotoAdmin(BaseModelAdmin, ReadOnlyModelAdmin):
     search_fields = [
         "file_name",
     ]
     list_display = [
         "file_name",
-        "file_size_formatted",
+        "taken_on_display",
+        "file_size_display",
     ]
     list_filter = [
         "file_type",
@@ -30,8 +32,8 @@ class PhotoAdmin(BaseModelAdmin):
             None,
             {
                 "fields": [
-                    "created_on",
-                    "updated_on",
+                    "created_on_display",
+                    "updated_on_display",
                 ],
             },
         ],
@@ -40,12 +42,14 @@ class PhotoAdmin(BaseModelAdmin):
             {
                 "fields": [
                     "thumbnail_display",
-                    "file_name_formatted",
-                    "file_path_formatted",
-                    "file_size_formatted",
-                    "file_atime",
-                    "file_mtime",
-                    "file_ctime",
+                    "file_name_display",
+                    "file_path_display",
+                    "is_image",
+                    "is_video",
+                    "file_size_display",
+                    "file_atime_display",
+                    "file_mtime_display",
+                    "file_ctime_display",
                 ],
             },
         ],
@@ -58,39 +62,16 @@ class PhotoAdmin(BaseModelAdmin):
                     "image_width",
                     "image_height",
                     "megapixels",
-                    "taken_on",
+                    "taken_on_display",
                     "gps_latitude",
                     "gps_longitude",
                     "gps_altitude",
                     "camera",
                     "lens",
-                    "metadata_formatted",
+                    "metadata_display",
                 ],
             },
         ],
-    ]
-    readonly_fields = [
-        "created_on",
-        "updated_on",
-        "thumbnail_display",
-        "file_name_formatted",
-        "file_path_formatted",
-        "file_size_formatted",
-        "file_atime",
-        "file_mtime",
-        "file_ctime",
-        "file_type",
-        "mime_type",
-        "image_width",
-        "image_height",
-        "megapixels",
-        "taken_on",
-        "gps_latitude",
-        "gps_longitude",
-        "gps_altitude",
-        "camera",
-        "lens",
-        "metadata_formatted",
     ]
 
     @admin.display(
@@ -105,27 +86,60 @@ class PhotoAdmin(BaseModelAdmin):
 
     @admin.display(
         description=_("File name"),
+        ordering="file_name",
     )
-    def file_name_formatted(self, obj):
+    def file_name_display(self, obj):
         return format_html("<pre>{}</pre>", obj.file_name)
 
     @admin.display(
         description=_("File path"),
+        ordering="file_path",
     )
-    def file_path_formatted(self, obj):
+    def file_path_display(self, obj):
         return format_html("<pre>{}</pre>", obj.file_path)
 
     @admin.display(
-        ordering="file_size",
         description=_("File size"),
+        ordering="file_size",
     )
-    def file_size_formatted(self, obj):
+    def file_size_display(self, obj):
         return bytes_to_human_readable(obj.file_size)
+
+    @admin.display(
+        description=_("File atime"),
+        ordering="file_atime",
+    )
+    def file_atime_display(self, obj):
+        return format_datetime(obj.file_atime)
+
+    @admin.display(
+        description=_("File mtime"),
+        ordering="file_mtime",
+    )
+    def file_mtime_display(self, obj):
+        return format_datetime(obj.file_mtime)
+
+    @admin.display(
+        description=_("File ctime"),
+        ordering="file_ctime",
+    )
+    def file_ctime_display(self, obj):
+        return format_datetime(obj.file_ctime)
+
+    @admin.display(
+        description=_("Taken on"),
+        ordering="taken_on",
+    )
+    def taken_on_display(self, obj):
+        if obj.taken_on is not None:
+            return format_datetime(obj.taken_on)
+        else:
+            return ""
 
     @admin.display(
         description=_("Metadata"),
     )
-    def metadata_formatted(self, obj):
+    def metadata_display(self, obj):
         return format_html(
             "<pre>{}</pre>",
             json.dumps(obj.metadata, indent=4, sort_keys=True),
@@ -133,7 +147,7 @@ class PhotoAdmin(BaseModelAdmin):
 
 
 @admin.register(FileType)
-class FileTypeAdmin(BaseModelAdmin):
+class FileTypeAdmin(BaseModelAdmin, ReadOnlyModelAdmin):
     search_fields = [
         "name",
     ]
@@ -144,8 +158,8 @@ class FileTypeAdmin(BaseModelAdmin):
         "name",
     ]
     readonly_fields = [
-        "created_on",
-        "updated_on",
+        "created_on_display",
+        "updated_on_display",
         "name",
         "matching_photos",
     ]
@@ -156,12 +170,12 @@ class FileTypeAdmin(BaseModelAdmin):
     def matching_photos(self, obj):
         url = reverse("admin:photos_photo_changelist")
         url = f"{url}?file_type__id__exact={obj.id}"
-        text = _("view matching photos")
+        text = _("matching photos")
         return format_html('<a href="{}">{}</a>', url, text)
 
 
 @admin.register(MimeType)
-class MimeTypeAdmin(BaseModelAdmin):
+class MimeTypeAdmin(BaseModelAdmin, ReadOnlyModelAdmin):
     search_fields = [
         "name",
     ]
@@ -172,8 +186,8 @@ class MimeTypeAdmin(BaseModelAdmin):
         "name",
     ]
     readonly_fields = [
-        "created_on",
-        "updated_on",
+        "created_on_display",
+        "updated_on_display",
         "name",
         "matching_photos",
     ]
@@ -184,36 +198,32 @@ class MimeTypeAdmin(BaseModelAdmin):
     def matching_photos(self, obj):
         url = reverse("admin:photos_photo_changelist")
         url = f"{url}?mime_type__id__exact={obj.id}"
-        text = _("view matching photos")
+        text = _("matching photos")
         return format_html('<a href="{}">{}</a>', url, text)
 
 
 @admin.register(Camera)
-class CameraAdmin(BaseModelAdmin):
+class CameraAdmin(BaseModelAdmin, ReadOnlyModelAdmin):
     search_fields = [
         "make",
         "model",
-        "serial_number",
     ]
     ordering = [
         "make",
         "model",
-        "serial_number",
     ]
     list_display = [
         "make",
         "model",
-        "serial_number",
     ]
     list_filter = [
         "make",
     ]
     readonly_fields = [
-        "created_on",
-        "updated_on",
+        "created_on_display",
+        "updated_on_display",
         "make",
         "model",
-        "serial_number",
         "matching_photos",
     ]
 
@@ -223,36 +233,35 @@ class CameraAdmin(BaseModelAdmin):
     def matching_photos(self, obj):
         url = reverse("admin:photos_photo_changelist")
         url = f"{url}?camera__id__exact={obj.id}"
-        text = _("view matching photos")
+        text = _("matching photos")
         return format_html('<a href="{}">{}</a>', url, text)
 
 
 @admin.register(Lens)
-class LensAdmin(BaseModelAdmin):
+class LensAdmin(BaseModelAdmin, ReadOnlyModelAdmin):
     search_fields = [
         "make",
-        "name",
-        "serial_number",
+        "model",
     ]
     ordering = [
-        # 'make',
-        "name",
-        "serial_number",
+        "make",
+        "model",
     ]
     list_display = [
         "make",
-        "name",
-        "serial_number",
+        "model",
+        "position",
     ]
     list_filter = [
         "make",
+        "position",
     ]
     readonly_fields = [
-        "created_on",
-        "updated_on",
+        "created_on_display",
+        "updated_on_display",
         "make",
-        "name",
-        "serial_number",
+        "model",
+        "position",
         "matching_photos",
     ]
 
@@ -262,5 +271,5 @@ class LensAdmin(BaseModelAdmin):
     def matching_photos(self, obj):
         url = reverse("admin:photos_photo_changelist")
         url = f"{url}?lens__id__exact={obj.id}"
-        text = _("view matching photos")
+        text = _("matching photos")
         return format_html('<a href="{}">{}</a>', url, text)

@@ -3,6 +3,10 @@ import datetime
 from utils.logging import get_logger
 
 
+# DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S,%f %Z"
+DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S %z"
+
+
 logger = get_logger(__name__)
 
 
@@ -32,3 +36,7 @@ def timestamp_to_datetime(timestamp):
     except ValueError:
         logger.error(f"Could not parse timestamp: {timestamp}")
     return None
+
+
+def format_datetime(dt):
+    return dt.strftime(DATETIME_FORMAT)
