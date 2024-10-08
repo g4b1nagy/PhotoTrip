@@ -5,8 +5,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
 
-from utils.admin import BaseModelAdmin, ReadOnlyModelAdmin
-from utils.datetime import format_datetime
+from utils.admin import DATETIME_FORMAT, BaseModelAdmin, ReadOnlyModelAdmin
 from utils.formatting import bytes_to_human_readable
 from .models import Photo, FileType, MimeType, Camera, Lens
 
@@ -110,21 +109,21 @@ class PhotoAdmin(BaseModelAdmin, ReadOnlyModelAdmin):
         ordering="file_atime",
     )
     def file_atime_display(self, obj):
-        return format_datetime(obj.file_atime)
+        return obj.file_atime.strftime(DATETIME_FORMAT)
 
     @admin.display(
         description=_("File mtime"),
         ordering="file_mtime",
     )
     def file_mtime_display(self, obj):
-        return format_datetime(obj.file_mtime)
+        return obj.file_mtime.strftime(DATETIME_FORMAT)
 
     @admin.display(
         description=_("File ctime"),
         ordering="file_ctime",
     )
     def file_ctime_display(self, obj):
-        return format_datetime(obj.file_ctime)
+        return obj.file_ctime.strftime(DATETIME_FORMAT)
 
     @admin.display(
         description=_("Taken on"),
@@ -132,7 +131,7 @@ class PhotoAdmin(BaseModelAdmin, ReadOnlyModelAdmin):
     )
     def taken_on_display(self, obj):
         if obj.taken_on is not None:
-            return format_datetime(obj.taken_on)
+            return obj.taken_on.strftime(DATETIME_FORMAT)
         else:
             return ""
 

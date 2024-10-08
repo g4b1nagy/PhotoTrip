@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.utils.translation import gettext as _
 
-from utils.datetime import format_datetime
+
+DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S %z"
 
 
 class BaseModelAdmin(admin.ModelAdmin):
@@ -22,14 +23,14 @@ class BaseModelAdmin(admin.ModelAdmin):
         ordering="created_on",
     )
     def created_on_display(self, obj):
-        return format_datetime(obj.created_on)
+        return obj.created_on.strftime(DATETIME_FORMAT)
 
     @admin.display(
         description=_("Updated on"),
         ordering="updated_on",
     )
     def updated_on_display(self, obj):
-        return format_datetime(obj.updated_on)
+        return obj.updated_on.strftime(DATETIME_FORMAT)
 
 
 class ReadOnlyModelAdmin(admin.ModelAdmin):
