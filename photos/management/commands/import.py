@@ -82,24 +82,25 @@ class Command(BaseCommand):
             else:
                 lens = None
             stat = os.stat(file_path)
-            photo, created = Photo.objects.update_or_create(
-                file_name=file_path.name,
-                file_path=file_path,
-                file_size=stat.st_size,
-                file_atime=timestamp_to_datetime(stat.st_atime),
-                file_mtime=timestamp_to_datetime(stat.st_mtime),
-                file_ctime=timestamp_to_datetime(stat.st_ctime),
-                file_type=file_type,
-                mime_type=mime_type,
-                image_width=image_width,
-                image_height=image_height,
-                megapixels=megapixels,
-                taken_on=taken_on,
-                gps_latitude=gps_latitude,
-                gps_longitude=gps_longitude,
-                gps_altitude=gps_altitude,
-                camera=camera,
-                lens=lens,
-                metadata=metadata,
-            )
+            photo = Photo.objects.filter(file_path=file_path).first()
+            if photo is None:
+                photo = Photo()
+            photo.file_name = file_path.name
+            photo.file_path = file_path
+            photo.file_size = stat.st_size
+            photo.file_atime = timestamp_to_datetime(stat.st_atime)
+            photo.file_mtime = timestamp_to_datetime(stat.st_mtime)
+            photo.file_ctime = timestamp_to_datetime(stat.st_ctime)
+            photo.file_type = file_type
+            photo.mime_type = mime_type
+            photo.image_width = image_width
+            photo.image_height = image_height
+            photo.megapixels = megapixels
+            photo.taken_on = taken_on
+            photo.gps_latitude = gps_latitude
+            photo.gps_longitude = gps_longitude
+            photo.gps_altitude = gps_altitude
+            photo.camera = camera
+            photo.lens = lens
+            photo.metadata = metadata
             photo.save()
