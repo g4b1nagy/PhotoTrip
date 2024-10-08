@@ -5,6 +5,16 @@ from utils.datetime import parse_datetime
 
 
 TIMEOUT = 5
+TAKEN_ON_TAGS = [
+    "SubSecDateTimeOriginal",
+    "DateTimeOriginal",
+    "GPSDateTime",
+    "SubSecCreateDate",
+    "DateTimeCreated",
+    "DigitalCreationDateTime",
+    "DateCreated",
+    "SubSecModifyDate",
+]
 
 
 class ExifException(Exception):
@@ -81,19 +91,14 @@ def get_megapixels(metadata):
 
 
 def get_taken_on(metadata):
-    keys = ["SubSecDateTimeOriginal", "DateTimeOriginal"]
-    values = []
-    for key in keys:
+    for tag in TAKEN_ON_TAGS:
         try:
-            value = metadata["Composite"][key]["val"]
-            if value is not None:
-                values.append(value)
+            value = metadata["Composite"][tag]["val"]
+            taken_on = parse_datetime(value)
+            if taken_on is not None:
+                return taken_on
         except KeyError:
             pass
-    for value in values:
-        taken_on = parse_datetime(value)
-        if taken_on is not None:
-            return taken_on.isoformat()
     return None
 
 
