@@ -12,6 +12,7 @@ DATETIME_FORMATS = [
     "%Y:%m:%d %H:%M:%S%z",
     "%Y:%m:%d %H:%M:%S",
 ]
+TIMEZONE = datetime.UTC
 
 
 def parse_datetime(string):
@@ -19,7 +20,7 @@ def parse_datetime(string):
         try:
             dt = datetime.datetime.strptime(string, format)
             if dt.tzinfo is None:
-                return dt.replace(tzinfo=datetime.UTC)
+                return dt.replace(tzinfo=TIMEZONE)
             else:
                 return dt
         except ValueError:
@@ -30,7 +31,7 @@ def parse_datetime(string):
 
 def timestamp_to_datetime(timestamp):
     try:
-        return datetime.datetime.fromtimestamp(timestamp, tz=datetime.UTC)
+        return datetime.datetime.fromtimestamp(timestamp, tz=TIMEZONE)
     except (ValueError, OSError, OverflowError):
         logger.error(f"Could not convert timestamp to datetime: {timestamp}")
         return None
