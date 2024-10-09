@@ -14,22 +14,23 @@ DATETIME_FORMATS = [
 ]
 
 
-def parse_datetime(dt_string):
+def parse_datetime(string):
     for format in DATETIME_FORMATS:
         try:
-            dt = datetime.datetime.strptime(dt_string, format)
+            dt = datetime.datetime.strptime(string, format)
             if dt.tzinfo is None:
-                dt = dt.replace(tzinfo=datetime.UTC)
-            return dt
+                return dt.replace(tzinfo=datetime.UTC)
+            else:
+                return dt
         except ValueError:
             pass
-    logger.error(f"Could not parse datetime string: {dt_string}")
+    logger.error(f"Could not parse datetime string: {string}")
     return None
 
 
 def timestamp_to_datetime(timestamp):
     try:
-        return datetime.datetime.fromtimestamp(timestamp).replace(tzinfo=datetime.UTC)
-    except ValueError:
+        return datetime.datetime.fromtimestamp(timestamp, tz=datetime.UTC)
+    except (ValueError, OSError, OverflowError):
         logger.error(f"Could not convert timestamp to datetime: {timestamp}")
         return None

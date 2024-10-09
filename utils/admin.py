@@ -9,7 +9,7 @@ class BaseModelAdmin(admin.ModelAdmin):
     # Show most recent objects first
     ordering = ["-id"]
 
-    # The default value is '-'
+    # The default value is "-"
     empty_value_display = ""
 
     def __init__(self, model, admin_site):
