@@ -2,7 +2,7 @@ import collections
 
 from django.test import TestCase
 
-from utils.datetime import parse_datetime
+from utils.datetime import parse_datetime, timestamp_to_datetime
 
 
 class DatetimeTestCase(TestCase):
@@ -53,3 +53,15 @@ class DatetimeTestCase(TestCase):
         for item in test_data:
             actual = parse_datetime(item.input)
             self.assertEqual(actual.isoformat(), item.expected)
+        self.assertEqual(parse_datetime("not a datetime"), None)
+
+    def test_timestamp_to_datetime(self):
+        self.assertEqual(
+            timestamp_to_datetime(978310861).isoformat(), "2001-01-01T01:01:01+00:00"
+        )
+        # ValueError
+        self.assertEqual(timestamp_to_datetime(978310861000), None)
+        # OSError
+        self.assertEqual(timestamp_to_datetime(97831086100000000), None)
+        # OverflowError
+        self.assertEqual(timestamp_to_datetime(9783108610000000000), None)
