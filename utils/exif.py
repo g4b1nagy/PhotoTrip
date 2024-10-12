@@ -134,9 +134,10 @@ def get_mime_type(metadata):
 
 def get_image_width_image_height(metadata):
     try:
-        # Note that ImageSize may contain float values e.g. in some .svg files
+        # Using ImageSize because it is more reliable then ImageWidth and ImageHeight
+        # ImageSize may contain float values e.g. in some .svg files
         image_size = metadata["Composite"]["ImageSize"]["val"]
-        image_size = [int(x) for x in image_size.split("x")]
+        image_size = [int(float(x)) for x in image_size.split("x")]
         return tuple(image_size)
     except KeyError:
         return None, None
