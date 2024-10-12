@@ -194,12 +194,21 @@ def get_camera_make_camera_model(metadata):
 
 
 def get_lens_make_lens_model(metadata):
+    # LensMake, LensModel may contain numeric values e.g:
+    # "LensMake": {
+    #     "desc": "Lens Make",
+    #     "val": 0
+    # },
+    # "LensModel": {
+    #     "desc": "Lens Model",
+    #     "val": 1
+    # },
     try:
-        lens_make = metadata["EXIF"]["LensMake"]["val"]
+        lens_make = str(metadata["EXIF"]["LensMake"]["val"])
     except KeyError:
         lens_make = None
     try:
-        lens_model = metadata["EXIF"]["LensModel"]["val"]
+        lens_model = str(metadata["EXIF"]["LensModel"]["val"])
     except KeyError:
         lens_model = None
     return lens_make, lens_model
