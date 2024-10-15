@@ -92,6 +92,7 @@ MILLISECOND = r"""(?P<millisecond>[0-9][0-9][0-9])"""
 MICROSECOND = r"""(?P<microsecond>[0-9][0-9][0-9][0-9][0-9][0-9])"""
 
 EXTRACT_DATETIME_FORMATS = [
+    rf"""\D(IMG|PXL|VID)_{YEAR}{MONTH}{DAY}_{HOUR}:{MINUTE}:{SECOND}\D""",
     rf"""\D(IMG|PXL|VID)_{YEAR}{MONTH}{DAY}_{HOUR}{MINUTE}{SECOND}\D""",
     rf"""\D(IMG|PXL|VID)_{YEAR}{MONTH}{DAY}_{HOUR}{MINUTE}{SECOND}{MILLISECOND}\D""",
     rf"""\D(IMG|VID)-{YEAR}{MONTH}{DAY}\D""",

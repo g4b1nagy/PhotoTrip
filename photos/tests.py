@@ -35,6 +35,7 @@ class DatetimeTestCase(TestCase):
     def test_extract_datetime(self):
         # (input, expected)
         test_data = [
+            ("/path/to/photos/IMG_20001231_22:30:59.jpg", "2000-12-31T22:30:59+00:00"),
             ("/path/to/photos/IMG_20001231_223059.jpg", "2000-12-31T22:30:59+00:00"),
             ("/path/to/photos/PXL_20001231_223059.jpg", "2000-12-31T22:30:59+00:00"),
             ("/path/to/photos/VID_20001231_223059.jpg", "2000-12-31T22:30:59+00:00"),
