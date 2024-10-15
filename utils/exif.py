@@ -54,14 +54,14 @@ TIMEOUT = 5
 #                          | SubSecTime
 #                          | OffsetTime
 
-# * EXIF:DateTimeOriginal (date/time when original image was taken)
+# EXIF:DateTimeOriginal (date/time when original image was taken)
 # The date and time when the original image data was generated.
 # For a digital still camera the date and time the picture was taken are recorded.
 
-# * EXIF:CreateDate (called DateTimeDigitized by the EXIF spec.)
+# EXIF:CreateDate (called DateTimeDigitized by the EXIF spec.)
 # The date and time when the image was stored as digital data.
 
-# * EXIF:ModifyDate (called DateTime by the EXIF spec.)
+# EXIF:ModifyDate (called DateTime by the EXIF spec.)
 # The date and time of image creation. In Exif standard, it is the date and time the file was changed.
 
 TAKEN_ON_TAGS = [
@@ -73,6 +73,15 @@ TAKEN_ON_TAGS = [
     "DigitalCreationDateTime",
     "DateCreated",
     "SubSecModifyDate",
+]
+
+DURATION_TAGS = [
+    "Composite",
+    "QuickTime",
+    "M2TS",
+    "MakerNotes",
+    "Matroska",
+    "ASF",
 ]
 
 
@@ -157,6 +166,15 @@ def get_taken_on(metadata):
             taken_on = parse_datetime(value)
             if taken_on is not None:
                 return taken_on
+        except KeyError:
+            pass
+    return None
+
+
+def get_duration(metadata):
+    for tag in DURATION_TAGS:
+        try:
+            return metadata[tag]["Duration"]["num"]
         except KeyError:
             pass
     return None
