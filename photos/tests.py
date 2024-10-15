@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from utils.datetime import parse_datetime, timestamp_to_datetime
+from utils.datetime import parse_datetime, extract_datetime, timestamp_to_datetime
 
 
 class DatetimeTestCase(TestCase):
@@ -31,6 +31,64 @@ class DatetimeTestCase(TestCase):
             actual = parse_datetime(input)
             self.assertEqual(actual.isoformat(), expected)
         self.assertEqual(parse_datetime("not a datetime"), None)
+
+    def test_extract_datetime(self):
+        # (input, expected)
+        test_data = [
+            ("/path/to/photos/IMG_20001231_223059.jpg", "2000-12-31T22:30:59+00:00"),
+            ("/path/to/photos/PXL_20001231_223059.jpg", "2000-12-31T22:30:59+00:00"),
+            ("/path/to/photos/VID_20001231_223059.jpg", "2000-12-31T22:30:59+00:00"),
+            (
+                "/path/to/photos/IMG_20001231_223059123.jpg",
+                "2000-12-31T22:30:59.123000+00:00",
+            ),
+            (
+                "/path/to/photos/PXL_20001231_223059123.jpg",
+                "2000-12-31T22:30:59.123000+00:00",
+            ),
+            (
+                "/path/to/photos/VID_20001231_223059123.jpg",
+                "2000-12-31T22:30:59.123000+00:00",
+            ),
+            ("/path/to/photos/IMG-20001231.jpg", "2000-12-31T00:00:00+00:00"),
+            ("/path/to/photos/VID-20001231.jpg", "2000-12-31T00:00:00+00:00"),
+            ("/path/to/photos/IMG_20001231.jpg", "2000-12-31T00:00:00+00:00"),
+            ("/path/to/photos/VID_20001231.jpg", "2000-12-31T00:00:00+00:00"),
+            ("/path/to/photos/31 Jan 2000.jpg", "2000-01-31T00:00:00+00:00"),
+            ("/path/to/photos/31-Jan-2000.jpg", "2000-01-31T00:00:00+00:00"),
+            ("/path/to/photos/2000-12-31 AT 22.30.59.jpg", "2000-12-31T22:30:59+00:00"),
+            ("/path/to/photos/2000-12-31 22-30-59.jpg", "2000-12-31T22:30:59+00:00"),
+            ("/path/to/photos/2000-12-31 22:30:59.jpg", "2000-12-31T22:30:59+00:00"),
+            ("/path/to/photos/2000-12-31-22_30_59.jpg", "2000-12-31T22:30:59+00:00"),
+            (
+                "/path/to/photos/2000-12-31-22H30M59S123.jpg",
+                "2000-12-31T22:30:59.123000+00:00",
+            ),
+            ("/path/to/photos/2000-12-31-223059.jpg", "2000-12-31T22:30:59+00:00"),
+            ("/path/to/photos/2000-12-31.jpg", "2000-12-31T00:00:00+00:00"),
+            ("/path/to/photos/2000-12-31_22-30-59.jpg", "2000-12-31T22:30:59+00:00"),
+            ("/path/to/photos/2000.12.31.jpg", "2000-12-31T00:00:00+00:00"),
+            (
+                "/path/to/photos/2000_12_31T22_30_59_123.jpg",
+                "2000-12-31T22:30:59.123000+00:00",
+            ),
+            ("/path/to/photos/20001231-223059.jpg", "2000-12-31T22:30:59+00:00"),
+            ("/path/to/photos/20001231_223059.jpg", "2000-12-31T22:30:59+00:00"),
+            (
+                "/path/to/photos/20001231_223059_123.jpg",
+                "2000-12-31T22:30:59.123000+00:00",
+            ),
+            ("/path/to/photos/2000/foo.jpg", "2000-01-01T00:00:00+00:00"),
+        ]
+        for input, expected in test_data:
+            actual = extract_datetime(input)
+            self.assertEqual(actual.isoformat(), expected)
+        # File path containing multiple datetimes
+        self.assertEqual(
+            extract_datetime("/path/to/photos/2000/31-Jan-2000.jpg").isoformat(),
+            "2000-01-31T00:00:00+00:00",
+        )
+        self.assertEqual(extract_datetime("/path/to/photos/31 feb 2000.jpg"), None)
 
     def test_timestamp_to_datetime(self):
         self.assertEqual(
