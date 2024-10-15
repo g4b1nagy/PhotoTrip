@@ -13,4 +13,4 @@ Take a trip through your photo collection
     ./manage.py migrate
     DJANGO_SUPERUSER_PASSWORD="admin" ./manage.py createsuperuser --no-input --username admin --email admin@photo.trip
     ./manage.py runserver
-    go to http://localhost:8000/
+    go to http://localhost:8000/admin/
