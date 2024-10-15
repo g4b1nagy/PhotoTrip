@@ -6,7 +6,7 @@ from django.core.management.base import BaseCommand
 from photos.models import Photo, FileType, MimeType, Camera, Lens
 from utils import exif
 from utils.logging import get_logger
-from utils.datetime import timestamp_to_datetime
+from utils.datetime import extract_datetime, timestamp_to_datetime
 
 
 logger = get_logger(__name__)
@@ -62,7 +62,7 @@ class Command(BaseCommand):
             )
             image_width, image_height = exif.get_image_width_image_height(metadata)
             megapixels = exif.get_megapixels(metadata)
-            taken_on = exif.get_taken_on(metadata)
+            taken_on = exif.get_taken_on(metadata) or extract_datetime(file_path)
             gps_latitude, gps_longitude = exif.get_gps_latitude_gps_longitude(metadata)
             gps_altitude = exif.get_gps_altitude(metadata)
             camera_make, camera_model = exif.get_camera_make_camera_model(metadata)
