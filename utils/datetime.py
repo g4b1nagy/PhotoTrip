@@ -73,16 +73,16 @@ YEAR = r"""(?P<year>[12][0-9][0-9][0-9])"""
 # 01 or 02 or 03 or ... or 10 or 11 or 12
 MONTH = r"""(?P<month>0[1-9]|1[012])"""
 
-# 01 or 02 or 03 or ... or 30 or 31
+# 01 or 02 or 03 or ... or 29 or 30 or 31
 DAY = r"""(?P<day>0[1-9]|1[0-9]|2[0-9]|3[01])"""
 
-# 00 or 01 or 02 or ... or 22 or 23
+# 00 or 01 or 02 or ... or 21 or 22 or 23
 HOUR = r"""(?P<hour>[0-1][0-9]|2[0123])"""
 
-# 00 or 01 or 02 or ... or 58 or 59
+# 00 or 01 or 02 or ... or 57 or 58 or 59
 MINUTE = r"""(?P<minute>[0-5][0-9])"""
 
-# 00 or 01 or 02 or ... or 58 or 59
+# 00 or 01 or 02 or ... or 57 or 58 or 59
 SECOND = r"""(?P<second>[0-5][0-9])"""
 
 # 000 => 999

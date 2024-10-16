@@ -11,6 +11,7 @@ Take a trip through your photo collection
     source venv/bin/activate
     pip install -r requirements.txt
     ./manage.py migrate
+    ./manage.py import /path/to/photos/
     DJANGO_SUPERUSER_PASSWORD="admin" ./manage.py createsuperuser --no-input --username admin --email admin@photo.trip
     ./manage.py runserver
     go to http://localhost:8000/admin/
