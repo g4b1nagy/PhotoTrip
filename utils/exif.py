@@ -76,11 +76,18 @@ TAKEN_ON_TAGS = [
 ]
 
 DURATION_TAGS = [
-    "Composite",
+    # Number of occurrences in test data:
+    # 6803 out of 8027 => 84.75146 %
     "QuickTime",
+    # 175 out of 8027 => 2.18014 %
+    "Composite",
+    # 56 out of 8027 => 0.69764 %
     "M2TS",
+    # 25 out of 8027 => 0.31144 %
     "MakerNotes",
+    # 12 out of 8027 => 0.14949 %
     "Matroska",
+    # 8 out of 8027 => 0.09966 %
     "ASF",
 ]
 
@@ -172,9 +179,17 @@ def get_taken_on(metadata):
 
 
 def get_duration(metadata):
+    # In test data, Duration could only be extracted for 7054 out of 8027 videos => 87.87841 %
+    # Duration may contain strings e.g:
+    # "QuickTime": {
+    #     "Duration": {
+    #         "desc": "Duration",
+    #         "num": "0.00166666666666667",
+    #         "val": "0.00 s"
+    #     },
     for tag in DURATION_TAGS:
         try:
-            return metadata[tag]["Duration"]["num"]
+            return float(metadata[tag]["Duration"]["num"])
         except KeyError:
             pass
     return None
