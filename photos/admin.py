@@ -62,6 +62,7 @@ class PhotoAdmin(BaseModelAdmin, ReadOnlyModelAdmin):
                     "image_height",
                     "megapixels",
                     "taken_on_display",
+                    "duration",
                     "gps_latitude",
                     "gps_longitude",
                     "gps_altitude",

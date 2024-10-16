@@ -25,6 +25,7 @@ class Photo(BaseModel):
     image_height = models.PositiveIntegerField(null=True)
     megapixels = models.FloatField(null=True)
     taken_on = models.DateTimeField(null=True)
+    duration = models.FloatField(null=True)
     gps_latitude = models.FloatField(null=True)
     gps_longitude = models.FloatField(null=True)
     gps_altitude = models.FloatField(null=True)
