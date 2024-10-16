@@ -6,7 +6,7 @@ from utils.datetime import parse_datetime
 
 TIMEOUT = 5
 
-# The values of the composite tags are derived from the values of other tags.
+# The values of the Composite tags are derived from the values of other tags.
 # These are convenience tags which are calculated after all other information is extracted.
 # See:
 # https://exiftool.org/TagNames/Composite.html
